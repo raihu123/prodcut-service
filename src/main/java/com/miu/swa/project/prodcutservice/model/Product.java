@@ -14,7 +14,7 @@ import java.math.BigInteger;
 @Document
 public class Product {
     @Id
-    BigInteger prod_num;
+    BigInteger prodID;
     String name;
     Double price;
     String description;
