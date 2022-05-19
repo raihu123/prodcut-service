@@ -1,11 +1,7 @@
 package com.miu.swa.project.prodcutservice.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -13,11 +9,10 @@ import java.math.BigInteger;
 @Getter
 @Setter
 @AllArgsConstructor
-@Document
+@ToString
 @Builder
-public class Product {
-    @Id
-    BigInteger prodID;
+@NoArgsConstructor
+public class ProductDTO implements Serializable {
     String name;
     Double price;
     String description;

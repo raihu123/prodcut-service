@@ -1,6 +1,7 @@
 package com.miu.swa.project.prodcutservice.controller;
 
 import com.miu.swa.project.prodcutservice.model.Product;
+import com.miu.swa.project.prodcutservice.model.ProductDTO;
 import com.miu.swa.project.prodcutservice.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -19,7 +20,7 @@ public class ProfileTwoController {
 
     @GetMapping("/")
     public String something() {
-        productService.sendKafkaTopic("product");
+        productService.sendKafkaTopic("product", new ProductDTO("Lighter", 2.5, "something taht lights", 12));
         return "Hi kafka is working!";
     }
 
@@ -30,8 +31,8 @@ public class ProfileTwoController {
 
 
     @PostMapping(value = "/product")
-    public ResponseEntity<?> addProduct(@RequestBody Product product) {
-        productService.addProduct(product.getProdID(), product.getName(), product.getPrice(), product.getDescription(), product.getStock());
+    public ResponseEntity<?> addProduct(@RequestBody ProductDTO product) {
+        productService.addProduct(product.getName(), product.getPrice(), product.getDescription(), product.getStock());
         return new ResponseEntity<Product>(HttpStatus.OK);
     }
 
@@ -55,6 +56,6 @@ public class ProfileTwoController {
 
     @GetMapping(value = "/product/{productID}/stock")
     public ResponseEntity<?> getStock(@PathVariable BigInteger productID) {
-        return new ResponseEntity<String>(productService.getProduct(productID).getStock().toString(), HttpStatus.OK);
+        return new ResponseEntity<String>(productService.getProduct(productID).getStock() + "", HttpStatus.OK);
     }
 }

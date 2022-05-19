@@ -3,7 +3,9 @@ package com.miu.swa.project.prodcutservice.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.miu.swa.project.prodcutservice.model.Product;
+import com.miu.swa.project.prodcutservice.model.ProductDTO;
 import com.miu.swa.project.prodcutservice.repo.ProductRepo;
+import com.thoughtworks.xstream.core.SequenceGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 public class ProductService {
@@ -19,10 +22,17 @@ public class ProductService {
     @Autowired
     ProductRepo productRepo;
 
-    public void addProduct(BigInteger productID, String name, double price, String description, BigInteger stock) {
+    public void addProduct( String name, double price, String description, int stock) {
+        BigInteger productID = this.sequenceGenarato();
         Product product = new Product(productID, name, price, description, stock);
         productRepo.save(product);
 
+    }
+
+    private BigInteger sequenceGenarato(){
+        Random rand = new Random();
+        BigInteger result = new BigInteger(15, rand);
+        return result;
     }
 
     private final KafkaTemplate kafkaTemplate;
@@ -31,7 +41,7 @@ public class ProductService {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void sendKafkaTopic(String topic, Product product) {
+    public void sendKafkaTopic(String topic, ProductDTO product) {
         ObjectMapper objectMapper = new ObjectMapper();
         String data = "";
         try {
@@ -46,6 +56,15 @@ public class ProductService {
     public void  receiveKafkaMessage(@Payload String s) {
         System.out.println("-------------------------");
         System.out.println(s);
+        ObjectMapper objectMapper = new ObjectMapper();
+        ProductDTO record = null;
+        try {
+            record = objectMapper.readValue(s, ProductDTO.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        System.out.println("received message [product-1] =" + record);
+        this.addProduct(record.getName(),record.getPrice(),record.getDescription(),record.getStock());
     }
 
     public Product getProduct(BigInteger productID) {
@@ -56,7 +75,7 @@ public class ProductService {
             return null;
     }
 
-    public void setStock(BigInteger productID, BigInteger quantity) {
+    public void setStock(BigInteger productID, int quantity) {
         Optional<Product> result = productRepo.findById(productID);
         if (result.isPresent()) {
             Product product = result.get();

@@ -20,7 +20,7 @@ public class ProfileOneController {
 
     @PostMapping(value = "/product")
     public ResponseEntity<?> addProduct(@RequestBody Product product) {
-        productService.addProduct(product.getProdID(), product.getName(), product.getPrice(), product.getDescription(), product.getStock());
+        productService.addProduct(product.getName(), product.getPrice(), product.getDescription(), product.getStock());
         return new ResponseEntity<Product>(HttpStatus.OK);
     }
 
@@ -44,6 +44,6 @@ public class ProfileOneController {
 
     @GetMapping(value = "/product/{productID}/stock")
     public ResponseEntity<?> getStock(@PathVariable BigInteger productID) {
-        return new ResponseEntity<String>(productService.getProduct(productID).getStock().toString(), HttpStatus.OK);
+        return new ResponseEntity<String>(productService.getProduct(productID).getStock() + "", HttpStatus.OK);
     }
 }
