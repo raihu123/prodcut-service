@@ -22,7 +22,7 @@ public class ProductService {
     @Autowired
     ProductRepo productRepo;
 
-    public void addProduct( String name, double price, String description, int stock) {
+    private void addProduct( String name, double price, String description, int stock) {
         BigInteger productID = this.sequenceGenarato();
         Product product = new Product(productID, name, price, description, stock);
         productRepo.save(product);
@@ -41,7 +41,7 @@ public class ProductService {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void sendKafkaTopic(String topic, ProductDTO product) {
+    public void addProductUsingKafka( ProductDTO product) {
         ObjectMapper objectMapper = new ObjectMapper();
         String data = "";
         try {
@@ -49,10 +49,10 @@ public class ProductService {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        kafkaTemplate.send(topic, data);
+        kafkaTemplate.send("add-product", data);
     }
 
-    @KafkaListener(topics = "product")
+    @KafkaListener(topics = "add-product")
     public void  receiveKafkaMessage(@Payload String s) {
         System.out.println("-------------------------");
         System.out.println(s);
@@ -92,6 +92,23 @@ public class ProductService {
             product.setDescription(description);
             productRepo.save(product);
         }
-
     }
+
+
+    @KafkaListener(topics = "update-product")
+    public void  updateProductUsingKafka(@Payload String s) {
+        System.out.println("-------------------------");
+        System.out.println(s);
+        ObjectMapper objectMapper = new ObjectMapper();
+        Product record = null;
+        try {
+            record = objectMapper.readValue(s, Product.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        System.out.println("received message [product-1] =" + record);
+//        this.updateProduct(record.getName(),record.getPrice(),record.getDescription(),record.getStock());
+    }
+
+
 }

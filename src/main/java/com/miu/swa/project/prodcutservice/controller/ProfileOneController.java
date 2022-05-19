@@ -1,6 +1,7 @@
 package com.miu.swa.project.prodcutservice.controller;
 
 import com.miu.swa.project.prodcutservice.model.Product;
+import com.miu.swa.project.prodcutservice.model.ProductDTO;
 import com.miu.swa.project.prodcutservice.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -19,8 +20,8 @@ public class ProfileOneController {
 
 
     @PostMapping(value = "/product")
-    public ResponseEntity<?> addProduct(@RequestBody Product product) {
-        productService.addProduct(product.getName(), product.getPrice(), product.getDescription(), product.getStock());
+    public ResponseEntity<?> addProduct(@RequestBody ProductDTO product) {
+        productService.addProductUsingKafka(product);
         return new ResponseEntity<Product>(HttpStatus.OK);
     }
 
@@ -31,7 +32,6 @@ public class ProfileOneController {
             return new ResponseEntity<CustomErrorType>(new CustomErrorType("Product not found= "
                 + productID + " is not available"), HttpStatus.NOT_FOUND);
         }
-
         return new ResponseEntity<Product>(product, HttpStatus.OK);
     }
 

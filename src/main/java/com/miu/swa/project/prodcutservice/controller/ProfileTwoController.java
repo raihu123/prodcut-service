@@ -18,21 +18,9 @@ public class ProfileTwoController {
     ProductService productService;
 
 
-    @GetMapping("/")
-    public String something() {
-        productService.sendKafkaTopic("product", new ProductDTO("Lighter", 2.5, "something taht lights", 12));
-        return "Hi kafka is working!";
-    }
-
-//    @GetMapping("/s/")
-//    public String something1() {
-//        return
-//    }
-
-
     @PostMapping(value = "/product")
     public ResponseEntity<?> addProduct(@RequestBody ProductDTO product) {
-        productService.addProduct(product.getName(), product.getPrice(), product.getDescription(), product.getStock());
+        productService.addProductUsingKafka(product);
         return new ResponseEntity<Product>(HttpStatus.OK);
     }
 
@@ -43,7 +31,6 @@ public class ProfileTwoController {
             return new ResponseEntity<CustomErrorType>(new CustomErrorType("Product not found= "
                 + productID + " is not available"), HttpStatus.NOT_FOUND);
         }
-
         return new ResponseEntity<Product>(product, HttpStatus.OK);
     }
 
