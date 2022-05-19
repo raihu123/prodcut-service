@@ -17,6 +17,18 @@ public class ProfileTwoController {
     ProductService productService;
 
 
+    @GetMapping("/")
+    public String something() {
+        productService.sendKafkaTopic("product");
+        return "Hi kafka is working!";
+    }
+
+//    @GetMapping("/s/")
+//    public String something1() {
+//        return
+//    }
+
+
     @PostMapping(value = "/product")
     public ResponseEntity<?> addProduct(@RequestBody Product product) {
         productService.addProduct(product.getProdID(), product.getName(), product.getPrice(), product.getDescription(), product.getStock());

@@ -1,8 +1,13 @@
 package com.miu.swa.project.prodcutservice.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.miu.swa.project.prodcutservice.model.Product;
 import com.miu.swa.project.prodcutservice.repo.ProductRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
@@ -18,6 +23,29 @@ public class ProductService {
         Product product = new Product(productID, name, price, description, stock);
         productRepo.save(product);
 
+    }
+
+    private final KafkaTemplate kafkaTemplate;
+
+    public ProductService(KafkaTemplate kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+    }
+
+    public void sendKafkaTopic(String topic, Product product) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String data = "";
+        try {
+            data = objectMapper.writeValueAsString(product);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        kafkaTemplate.send(topic, data);
+    }
+
+    @KafkaListener(topics = "product")
+    public void  receiveKafkaMessage(@Payload String s) {
+        System.out.println("-------------------------");
+        System.out.println(s);
     }
 
     public Product getProduct(BigInteger productID) {
